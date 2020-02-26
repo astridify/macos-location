@@ -17,9 +17,9 @@ void getCurrentPosition(const FunctionCallbackInfo<Value>& args) {
 
   if (args.Length() == 1) {
     if (args[0]->IsObject()) {
-      Local<Object> options = args[0]->ToObject(context).ToLocalChecked();
+      v8::MaybeLocal<v8::Object> options = args[0]->ToObject(context).ToLocalChecked();
 
-      Local<String> maximumAgeKey = String::NewFromUtf8(
+      v8::MaybeLocal<v8::String> maximumAgeKey = v8::String::NewFromUtf8(
         isolate, "maximumAge"
       ).ToLocalChecked();
       if (options->Has(context, maximumAgeKey).FromMaybe(false)) {
@@ -30,7 +30,7 @@ void getCurrentPosition(const FunctionCallbackInfo<Value>& args) {
         locationManager.maximumAge /= 1000.0;
       }
 
-      Local<String> enableHighAccuracyKey = String::NewFromUtf8(
+      v8::MaybeLocal<v8::String> enableHighAccuracyKey = v8::String::NewFromUtf8(
         isolate, "enableHighAccuracy"
       ).ToLocalChecked();
       if (options->Has(context, enableHighAccuracyKey).FromMaybe(false)) {
@@ -39,7 +39,7 @@ void getCurrentPosition(const FunctionCallbackInfo<Value>& args) {
         )->BooleanValue(isolate);
       }
 
-      Local<String> timeout = String::NewFromUtf8(
+      v8::MaybeLocal<v8::String> timeout = v8::String::NewFromUtf8(
         isolate, "timeout"
       ).ToLocalChecked();
       if (options->Has(context, timeout).FromMaybe(false)) {
@@ -52,7 +52,7 @@ void getCurrentPosition(const FunctionCallbackInfo<Value>& args) {
   if (![CLLocationManager locationServicesEnabled]) {
     isolate->ThrowException(
       Exception::TypeError(
-        String::NewFromUtf8(isolate, "CLocationErrorNoLocationService").ToLocalChecked()
+        v8::String::NewFromUtf8(isolate, "CLocationErrorNoLocationService").ToLocalChecked()
       )
     );
     return;
@@ -65,7 +65,7 @@ void getCurrentPosition(const FunctionCallbackInfo<Value>& args) {
       case kCLErrorDenied:
         isolate->ThrowException(
             Exception::TypeError(
-              String::NewFromUtf8(
+              v8::String::NewFromUtf8(
                 isolate,
                 "CLocationErrorLocationServiceDenied"
               ).ToLocalChecked()
@@ -75,59 +75,59 @@ void getCurrentPosition(const FunctionCallbackInfo<Value>& args) {
       case kCLErrorGeocodeCanceled:
         isolate->ThrowException(
             Exception::TypeError(
-              String::NewFromUtf8(isolate, "CLocationErrorGeocodeCanceled").ToLocalChecked()
+              v8::String::NewFromUtf8(isolate, "CLocationErrorGeocodeCanceled").ToLocalChecked()
             )
         );
         return;
       case kCLErrorLocationUnknown:
         isolate->ThrowException(
             Exception::TypeError(
-              String::NewFromUtf8(isolate, "CLocationErrorLocationUnknown").ToLocalChecked()
+              v8::String::NewFromUtf8(isolate, "CLocationErrorLocationUnknown").ToLocalChecked()
             )
         );
         return;
       default:
         isolate->ThrowException(
             Exception::TypeError(
-              String::NewFromUtf8(isolate, "CLocationErrorLookupFailed").ToLocalChecked()
+              v8::String::NewFromUtf8(isolate, "CLocationErrorLookupFailed").ToLocalChecked()
             )
         );
         return;
       }
   }
 
-  Local<Object> obj = Object::New(isolate);
+  v8::MaybeLocal<v8::Object> obj = Object::New(isolate);
   obj->Set(
-    String::NewFromUtf8(isolate, "latitude").ToLocalChecked(),
+    v8::String::NewFromUtf8(isolate, "latitude").ToLocalChecked(),
     Number::New(isolate, location.coordinate.latitude)
   );
   obj->Set(
-    String::NewFromUtf8(isolate, "longitude").ToLocalChecked(),
+    v8::String::NewFromUtf8(isolate, "longitude").ToLocalChecked(),
     Number::New(isolate, location.coordinate.longitude)
   );
   obj->Set(
-    String::NewFromUtf8(isolate, "altitude").ToLocalChecked(),
+    v8::String::NewFromUtf8(isolate, "altitude").ToLocalChecked(),
     Number::New(isolate, location.altitude)
   );
   obj->Set(
-    String::NewFromUtf8(isolate, "horizontalAccuracy").ToLocalChecked(),
+    v8::String::NewFromUtf8(isolate, "horizontalAccuracy").ToLocalChecked(),
     Number::New(isolate, location.horizontalAccuracy)
   );
   obj->Set(
-    String::NewFromUtf8(isolate, "verticalAccuracy").ToLocalChecked(),
+    v8::String::NewFromUtf8(isolate, "verticalAccuracy").ToLocalChecked(),
     Number::New(isolate, location.verticalAccuracy)
   );
 
   NSTimeInterval seconds = [location.timestamp timeIntervalSince1970];
   obj->Set(
-    String::NewFromUtf8(isolate, "timestamp").ToLocalChecked(),
+    v8::String::NewFromUtf8(isolate, "timestamp").ToLocalChecked(),
     Number::New(isolate, (NSInteger)ceil(seconds * 1000))
   );
 
   args.GetReturnValue().Set(obj);
 }
 
-void Initialise(Local<Object> exports) {
+void Initialise(v8::MaybeLocal<v8::Object> exports) {
   NODE_SET_METHOD(exports, "getCurrentPosition", getCurrentPosition);
 }
 
